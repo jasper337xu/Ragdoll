@@ -10,7 +10,6 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.paint.Color;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.stage.Stage;
 
@@ -47,10 +46,10 @@ public class Ragdoll extends Application {
     }
 
     private Sprite createSprites() {
-        Image torsoImg = new Image("torso.png", 80, 200, true, true);
+        Image torsoImg = new Image("torso.png", 80, 150, true, true);
         ImageView torsoIv = new ImageView(torsoImg);
-        torsoIv.setFitWidth(100);
-        torsoIv.setFitHeight(200);
+        torsoIv.setFitWidth(80);
+        torsoIv.setFitHeight(150);
         Sprite torso = new Sprite(torsoIv);
 
         Image headImg = new Image("head.png", 50, 80, true, true);
@@ -65,9 +64,86 @@ public class Ragdoll extends Application {
         lUpperArmIv.setFitHeight(100);
         Sprite lUpperArm = new Sprite(lUpperArmIv);
 
+        Image rUpperArmImg = new Image("upper_arm.png", 30, 100, true, true);
+        ImageView rUpperArmIv = new ImageView(rUpperArmImg);
+        rUpperArmIv.setFitWidth(30);
+        rUpperArmIv.setFitHeight(100);
+        Sprite rUpperArm = new Sprite(rUpperArmIv);
+
+        Image lLowerArmImg = new Image("lower_arm.png", 20, 80, true, true);
+        ImageView lLowerArmIv = new ImageView(lLowerArmImg);
+        lLowerArmIv.setFitWidth(20);
+        lLowerArmIv.setFitHeight(80);
+        Sprite lLowerArm = new Sprite(lLowerArmIv);
+
+        Image rLowerArmImg = new Image("lower_arm.png", 20, 80, true, true);
+        ImageView rLowerArmIv = new ImageView(rLowerArmImg);
+        rLowerArmIv.setFitWidth(20);
+        rLowerArmIv.setFitHeight(80);
+        Sprite rLowerArm = new Sprite(rLowerArmIv);
+
+        Image lHandImg = new Image("hand.png", 30, 30, true, true);
+        ImageView lHandIv = new ImageView(lHandImg);
+        lHandIv.setFitWidth(30);
+        lHandIv.setFitHeight(30);
+        Sprite lHand = new Sprite(lHandIv);
+
+        Image rHandImg = new Image("hand.png", 30, 30, true, true);
+        ImageView rHandIv = new ImageView(rHandImg);
+        rHandIv.setFitWidth(30);
+        rHandIv.setFitHeight(30);
+        Sprite rHand = new Sprite(rHandIv);
+
+        Image lUpperLegImg = new Image("leg.png", 20, 120, true, true);
+        ImageView lUpperLegIv = new ImageView(lUpperLegImg);
+        lUpperLegIv.setFitWidth(20);
+        lUpperLegIv.setFitHeight(120);
+        Sprite lUpperLeg = new Sprite(lUpperLegIv);
+
+        Image rUpperLegImg = new Image("leg.png", 20, 120, true, true);
+        ImageView rUpperLegIv = new ImageView(rUpperLegImg);
+        rUpperLegIv.setFitWidth(20);
+        rUpperLegIv.setFitHeight(120);
+        Sprite rUpperLeg = new Sprite(rUpperLegIv);
+
+        Image lLowerLegImg = new Image("leg.png", 15, 90, true, true);
+        ImageView lLowerLegIv = new ImageView(lLowerLegImg);
+        lLowerLegIv.setFitWidth(15);
+        lLowerLegIv.setFitHeight(90);
+        Sprite lLowerLeg = new Sprite(lLowerLegIv);
+
+        Image rLowerLegImg = new Image("leg.png", 15, 90, true, true);
+        ImageView rLowerLegIv = new ImageView(rLowerLegImg);
+        rLowerLegIv.setFitWidth(15);
+        rLowerLegIv.setFitHeight(90);
+        Sprite rLowerLeg = new Sprite(rLowerLegIv);
+
+        Image lFootImg = new Image("foot.png", 50, 20, true, true);
+        ImageView lFootIv = new ImageView(lFootImg);
+        lFootIv.setFitWidth(50);
+        lFootIv.setFitHeight(20);
+        Sprite lFoot = new Sprite(lFootIv);
+
+        Image rFootImg = new Image("foot.png", 50, 20, true, true);
+        ImageView rFootIv = new ImageView(rFootImg);
+        rFootIv.setFitWidth(50);
+        rFootIv.setFitHeight(20);
+        Sprite rFoot = new Sprite(rFootIv);
+
         // build scene graph aka tree from them
         torso.addChild(head);
         torso.addChild(lUpperArm);
+        torso.addChild(rUpperArm);
+        lUpperArm.addChild(lLowerArm);
+        rUpperArm.addChild(rLowerArm);
+        lLowerArm.addChild(lHand);
+        rLowerArm.addChild(rHand);
+        torso.addChild(lUpperLeg);
+        torso.addChild(rUpperLeg);
+        lUpperLeg.addChild(lLowerLeg);
+        rUpperLeg.addChild(rLowerLeg);
+        lLowerLeg.addChild(lFoot);
+        rLowerLeg.addChild(rFoot);
 
         // translate them to a starting position
         torso.translate(450, 200);
@@ -76,6 +152,26 @@ public class Ragdoll extends Application {
             lUpperArm.rotate(30);
         } catch (NonInvertibleTransformException e) {}
         lUpperArm.translate(-15, -5);
+        try {
+            rUpperArm.rotate(-30);
+        } catch (NonInvertibleTransformException e) {}
+        rUpperArm.translate(70, 10);
+        try {
+            lLowerArm.rotate(-10);
+        } catch (NonInvertibleTransformException e) {}
+        lLowerArm.translate(-30, 70);
+        try {
+            rLowerArm.rotate(10);
+        } catch (NonInvertibleTransformException e) {}
+        rLowerArm.translate(40, 60);
+        lHand.translate(-20, 55);
+        rHand.translate(15, 60);
+        lUpperLeg.translate(0, 150);
+        rUpperLeg.translate(60, 150);
+        lLowerLeg.translate(0, 95);
+        rLowerLeg.translate(0, 95);
+        lFoot.translate(-40, 60);
+        rFoot.translate(10, 60);
 
         return torso;
     }
