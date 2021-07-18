@@ -1,3 +1,4 @@
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.ImageView;
 import javafx.scene.transform.Affine;
@@ -13,8 +14,12 @@ public class Sprite {
     Vector<Sprite> children = new Vector<Sprite>();
     ImageView iv = null;
     private double x, y;
+    Point2D parentPivot = null;
+    Point2D selfPivot = null;
+    //boolean hasConnected = false;
 
     enum OPERATION {TRANSLATE, SCALE_UP, SCALE_DOWN, ROTATE}
+    // TODO: may not need operation
     OPERATION operation = null;
     List<OPERATION> localOps = new ArrayList<>();
     List<double[]> localOpParams = new ArrayList<>();
@@ -23,6 +28,12 @@ public class Sprite {
         this.iv = iv;
         x = 0;
         y = 0;
+    }
+
+    public Sprite(ImageView iv, double ppx, double ppy, double spx, double spy) {
+        this(iv);
+        parentPivot = new Point2D(ppx, ppy);
+        selfPivot = new Point2D(spx, spy);
     }
 
     public Sprite(ImageView iv, Sprite parent) {
@@ -63,6 +74,10 @@ public class Sprite {
     }
 
     void scale(double sx, double sy) throws NonInvertibleTransformException {
+        operation = OPERATION.SCALE_UP;
+        localOps.add(OPERATION.SCALE_UP);
+        double[] param = new double[] {sx, sy};
+        localOpParams.add(param);
         //Affine fullMatrix = getFullMatrix();
         //Affine inverse = fullMatrix.createInverse();
 
@@ -74,6 +89,7 @@ public class Sprite {
 
     Affine getLocalMatrix() {
         matrix = new Affine();
+        Affine parentMatrix = null;
         for (int i = 0; i < localOps.size(); i++) {
             OPERATION localOp = localOps.get(i);
             double[] localOpParam = localOpParams.get(i);
@@ -81,8 +97,9 @@ public class Sprite {
                 matrix.prependTranslation(localOpParam[0], localOpParam[1]);
             }
             else if (localOp == OPERATION.ROTATE) { // must have a parent
-                Affine parentMatrix = parent.getFullMatrix();
-                Affine parentInverse = null;
+                //parentMatrix = parent.getFullMatrix();
+                parentMatrix = parent.matrix.clone();
+                Affine parentInverse;
                 try {
                     parentInverse = parentMatrix.createInverse();
                 } catch (NonInvertibleTransformException e) { // should not get here
@@ -92,34 +109,35 @@ public class Sprite {
                 matrix.prependRotation(localOpParam[0]);
                 matrix.prepend(parentMatrix);
             }
+            // TODO: Scale
+        }
+        //if (localOps.get(localOps.size() - 1) == OPERATION.ROTATE) {
+        if (localOps.get(localOps.size() - 1) == OPERATION.ROTATE) {
+        //if (localOps.get(localOps.size() - 1) == OPERATION.ROTATE && !hasConnected) {
+        //if (localOps.get(localOps.size() - 1) == OPERATION.ROTATE && parentPivot.getX() == 0) {
+            Point2D curParentPivot = parentMatrix.transform(parentPivot);
+            System.out.println("" + curParentPivot.getX() + ", " + curParentPivot.getY());
+            Affine m = matrix.clone();
+            m.append(parentMatrix);
+            Point2D curSelfPivot = m.transform(selfPivot);
+            System.out.println("" + curSelfPivot.getX() + ", " + curSelfPivot.getY());
+            //if (parentPivot.getX() == 0) {
+            matrix.prependTranslation(curParentPivot.getX() - curSelfPivot.getX(), curParentPivot.getY() - curSelfPivot.getY());
+            //}
+            //hasConnected = true;
         }
         return matrix;
     }
 
     Affine getFullMatrix() {
         Affine fullMatrix = getLocalMatrix().clone();
-/*
-        if (parent == null) {
-            return fullMatrix;
-        }
-        Affine parentMatrix = parent.getFullMatrix();
-        Affine parentInverse = null;
-        if (operation == OPERATION.TRANSLATE || operation == null) {
-            fullMatrix.append(parentMatrix);
-        } else if (operation == OPERATION.ROTATE) {
-            try {
-                parentInverse = parentMatrix.createInverse();
-            } catch (NonInvertibleTransformException e) { // should not get here
-                parentInverse = new Affine();
-            }
-            fullMatrix.append(parentInverse);
-            fullMatrix.prepend(parentMatrix);
-            fullMatrix.append(parentMatrix);
-        }
-*/
         if (parent != null) {
-            fullMatrix.append(parent.getFullMatrix());
+            //Affine parentMatrix = parent.getFullMatrix();
+            //fullMatrix.append(parentMatrix);
+            //fullMatrix.append(parent.getFullMatrix());
+            fullMatrix.append(parent.matrix.clone());
         }
+        matrix = fullMatrix;
         return fullMatrix;
     }
 
