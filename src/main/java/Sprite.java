@@ -110,6 +110,18 @@ public class Sprite {
                 matrix.prepend(parentMatrix);
             }
             // TODO: Scale
+            else if (localOp == OPERATION.SCALE_UP) {
+                parentMatrix = parent.matrix.clone();
+                Affine parentInverse;
+                try {
+                    parentInverse = parentMatrix.createInverse();
+                } catch (NonInvertibleTransformException e) { // should not get here
+                    parentInverse = new Affine();
+                }
+                matrix.prepend(parentInverse);
+                matrix.prependScale(localOpParam[0], localOpParam[1]);
+                matrix.prepend(parentMatrix);
+            }
         }
         //if (localOps.get(localOps.size() - 1) == OPERATION.ROTATE) {
         if (localOps.get(localOps.size() - 1) == OPERATION.ROTATE) {
@@ -125,6 +137,13 @@ public class Sprite {
             matrix.prependTranslation(curParentPivot.getX() - curSelfPivot.getX(), curParentPivot.getY() - curSelfPivot.getY());
             //}
             //hasConnected = true;
+        }
+        else if (localOps.get(localOps.size() - 1) == OPERATION.SCALE_UP) {
+            Point2D curParentPivot = parentMatrix.transform(parentPivot);
+            Affine m = matrix.clone();
+            m.append(parentMatrix);
+            Point2D curSelfPivot = m.transform(selfPivot);
+            matrix.prependTranslation(curParentPivot.getX() - curSelfPivot.getX(), curParentPivot.getY() - curSelfPivot.getY());
         }
         return matrix;
     }
